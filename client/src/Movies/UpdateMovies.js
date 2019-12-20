@@ -9,31 +9,39 @@ const initialMovie = {
   stars: []
 };
 
-// const id = props.match.params.id;
-
 const UpdateMovie = props => {
   const [movie, setMovie] = useState(initialMovie);
 
+  const id = props.match.params.id;
+
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/movies/${props.match.params.id}`)
+      .get(`http://localhost:5000/api/movies/${id}`)
       .then(res => {
+        console.log(res.data);
         setMovie(res.data);
       })
       .catch(err => console.log(err));
-  }, [props.match.params.id]);
+  }, [id]);
 
   const handleChange = e => {
     setMovie({ ...movie, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = e => {
+  const handleSubmit = (e, id) => {
+    console.log(id);
+    e.preventDefault();
+    axios.put(`http://localhost:5000/api/movies/${id}`, movie).then(res => {
+      props.history.push('/');
+    });
+  };
+
+  const deleteItem = e => {
     e.preventDefault();
     axios
-      .put(`http://localhost:5000/api/update-movies/${movie.id}`, movie)
+      .delete(`http://localhost:5000/api/movies/${movie.id}`)
       .then(res => {
-        setMovie(res.data);
-        props.history.push(`/update-movie/${movie.id}`);
+        props.history.push('/');
       })
       .catch(err => console.log(err));
   };
@@ -45,8 +53,6 @@ const UpdateMovie = props => {
           label='title'
           name='title'
           value={movie.title}
-          placeholder='Title'
-          type='text'
           onChange={handleChange}
         />
 
@@ -54,8 +60,6 @@ const UpdateMovie = props => {
           label='director'
           name='director'
           value={movie.director}
-          placeholder='Director'
-          type='text'
           onChange={handleChange}
         />
 
@@ -63,8 +67,6 @@ const UpdateMovie = props => {
           label='metascore'
           name='metascore'
           value={movie.metascore}
-          placeholder='Metascore'
-          type='text'
           onChange={handleChange}
         />
 
@@ -72,13 +74,11 @@ const UpdateMovie = props => {
           label='stars'
           name='stars'
           value={movie.stars}
-          placeholder='Stars'
-          type='text'
           onChange={handleChange}
         />
 
-        <button type='submit'>Edit</button>
-        <button type='submit'>Delete</button>
+        <button onClick={e => handleSubmit(e, id)}>Edit</button>
+        <button onClick={deleteItem}>Delete</button>
       </div>
     </form>
   );
